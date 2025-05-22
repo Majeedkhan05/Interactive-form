@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Feedback Survey</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background-size: 400% 400%;
+      animation: gradientBG 20s ease infinite;
+      font-family: 'Segoe UI', sans-serif;
+      color: #f5f6fa;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 2rem;
+      color: #00cec9;
+    }
+
+    form {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+      max-width: 700px;
+      margin: 40px auto;
+    }
+
+    label {
+      display: block;
+      margin: 20px 0 8px;
+      font-weight: 500;
+      font-size: 1.1rem;
+      color: #81ecec;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #74b9ff;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 10px;
+      outline: none;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #00cec9;
+    }
+
+    button {
+      background-color: #00cec9;
+      color: #2d3436;
+      font-weight: bold;
+      font-size: 1.1rem;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #55efc4;
+    }
+
+    #weatherResult {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #ffeaa7;
+    }
+  </style>
+</head>
+<body>
+  <form action="https://docs.google.com/forms/d/e/1FAIpQLSe_QeraygbRD3EoMElu82piodhYI3U9-vNaA6k_NavSibuICQ/formResponse" method="POST" target="_blank">
+    <h2>📝 Interactive Feedback Survey</h2>
+
+    <label for="name">Your Full Name</label>
+    <input type="text" id="name" name="entry.1835566968" required>
+
+    <label for="hobbies">What are your hobbies?</label>
+    <textarea id="hobbies" name="entry.336805763" required></textarea>
+
+    <label for="sport">Which sport do you like most?</label>
+    <select id="sport" name="entry.1854762389" required>
+      <option value="">--Select--</option>
+      <option value="Badminton">Badminton</option>
+      <option value="Cricket">Cricket</option>
+      <option value="Football">Football</option>
+      <option value="Basketball">Basketball</option>
+    </select>
+
+    <label for="country">Which is your favorite country?</label>
+    <select id="country" name="entry.261937164" required>
+      <option value="">--Select--</option>
+      <option value="Switzerland">Switzerland</option>
+      <option value="India">India</option>
+      <option value="Japan">Japan</option>
+      <option value="Norway">Norway</option>
+    </select>
+
+    <label for="q1">What inspires you the most?</label>
+    <input type="text" id="q1" name="entry.1193013156" required>
+
+    <label for="q2">What do you enjoy doing on weekends?</label>
+    <input type="text" id="q2" name="entry.1187867781" required>
+
+    <!-- Hidden location + weather -->
+    <input type="hidden" id="latitude" name="entry.974506162">
+    <input type="hidden" id="longitude" name="entry.1922390983">
+    <input type="hidden" id="temperature" name="entry.1607549015">
+
+    <label>Want to personalize this form experience based on your surroundings?</label>
+    <button type="button" onclick="getWeather()">Find Out 🌡️</button>
+
+    <div id="weatherResult"></div>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    function getWeather() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async function(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          document.getElementById('latitude').value = lat;
+          document.getElementById('longitude').value = lon;
+
+          try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const temp = data.current_weather.temperature;
+
+            document.getElementById('temperature').value = temp;
+            document.getElementById('weatherResult').innerText = `🌍 It's currently ${temp}°C in your area.`;
+
+          } catch (err) {
+            document.getElementById('weatherResult').innerText = "⚠️ Couldn't fetch temperature. Try again.";
+          }
+        }, function(error) {
+          alert("Location access is required to show your local weather.");
+        });
+      } else {
+        alert("Geolocation is not supported on this browser.");
+      }
+    }
+  </script>
+</body>
+</html>
